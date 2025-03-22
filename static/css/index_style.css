@@ -1,11 +1,17 @@
 body {
     margin: 0;
-    overflow: hidden;
-    background-color: #000;
+    background-color: #000000;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    scrollbar-width: thin; /* Use a thin scrollbar */
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color and track color */
 }
 #globe-container {
-    width: 100%;
-    height: 100vh;
+    width: 90vw; /* Use a percentage width for responsiveness */
+    max-width: 1000px;
+    height: 90vh; /* Adjust height for better fit on mobile */
     cursor: grab;
     margin: auto;
 }
@@ -27,10 +33,84 @@ body {
 #tooltip {
     position: absolute;
     display: none;
-    background: white;
-    border: 1px solid black;
+    background: black;
+    border: 2px solid white;
     padding: 10px;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 10;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+/* Bold styling for player name and number */
+#tooltip .player-name {
+    font-weight: bold;
+    font-size: 18px;
+}
+/* Styling for the player number */
+#tooltip .player-number {
+    font-weight: bold;
+    float: right;
+}
+/* Next Games Panel Styling */
+#next-games {
+    position: relative;
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px;
     border-radius: 5px;
-    pointer-events: none; /* Prevent mouse events on the tooltip */
-    z-index: 10; /* Ensure tooltip is above other elements */
+    font-family: Arial, sans-serif;
+    pointer-events: none;
+    z-index: 10;
+    width: 90%;
+    height: 30vh;
+    margin: auto;
+    border: 1px solid white;
+}
+
+/* List styling for next games */
+#games-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#games-list li {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    #globe-container {
+        width: 95vw; /* Increase width on smaller screens */
+        height: 50vh; /* Adjust height for better fit on mobile */
+    }
+}
+
+/* Custom scrollbar styles for WebKit browsers (Chrome, Safari) */
+html::-webkit-scrollbar {
+    width: 8px; /* Decrease the width of the scrollbar */
+}
+
+html::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1); /* Background of the scrollbar track */
+    border-radius: 6px; /* Rounded corners for the track */
+}
+
+html::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5); /* Color of the scrollbar thumb */
+    border-radius: 6px; /* Rounded corners for the thumb */
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.8); /* Color of the thumb on hover */
+}
+
+/* Custom scrollbar styles for Firefox */
+body {
+    scrollbar-width: thin; /* Use a thin scrollbar */
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color and track color */
 }

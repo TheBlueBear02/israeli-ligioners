@@ -6,7 +6,7 @@ let scene, camera, renderer;
 let markers = [];
 const raycaster = new THREE.Raycaster(); // Create a raycaster
 const mouse = new THREE.Vector2(); // Create a mouse vector for raycasting
-let baseDiskSize = 0.05; // Base size for the disks
+let baseDiskSize = 0.2; // Increase the base size for the disks
 
 // Variables for touch zoom
 let initialDistance = null; // To store the initial distance between two touch points
@@ -45,11 +45,12 @@ function init() {
     
     // Create scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000); // Set the scene background to black
+    // Set the scene background to transparent
+    scene.background = new THREE.Color(0x000000); // This line can be removed or set to null
     
     // Create camera
     camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.z = 5;
+    camera.position.z = 4.5; // Change the default zoom level to 5.5
     
     // Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -74,15 +75,15 @@ function init() {
     
     // Load Earth texture
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('static/earth_texture.jpg', function(texture) {
+    textureLoader.load('static/images/earth_textures/earth_texture1.jpg', function(texture) {
         // Create Earth sphere with texture
         const earthGeometry = new THREE.SphereGeometry(2, 64, 64);
         const earthMaterial = new THREE.MeshPhongMaterial({
             map: texture, // Apply the texture
-            emissive: 0x112244,
+            emissive: 0x000000,
             specular: 0x112233,
-            shininess: 30,
-            color: 0x00FFFF // Change this to your desired color
+            shininess: 10, // Reduce shininess for less reflection
+            color: 0x000000 // Change this to black
         });
         const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
         earthGroup.add(earthMesh);
@@ -107,8 +108,8 @@ function init() {
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('touchend', handleTouchEnd);
     
-    // Add mouse wheel event listener for zooming
-    window.addEventListener('wheel', handleMouseWheel);
+    // Add mouse wheel event listener for zooming to the globe container
+    container.addEventListener('wheel', handleMouseWheel);
     
     // Add extra event listener to handle case when mouse leaves the window
     window.addEventListener('mouseleave', handleMouseUp);
@@ -123,24 +124,36 @@ function init() {
 // Handle mouse wheel event for zooming
 function handleMouseWheel(event) {
     event.preventDefault(); // Prevent default scrolling behavior
-    const zoomSpeed = 0.01; // Adjust zoom speed for smaller jumps
-    const minZoom = 3; // Increase minimum zoom level
-    const maxZoom = 10; // Maximum zoom level
+    event.stopPropagation(); // Stop the event from propagating to the window
 
-    // Adjust camera position based on scroll direction
-    camera.position.z += event.deltaY * zoomSpeed;
+    const container = document.getElementById('globe-container');
+    const rect = container.getBoundingClientRect(); // Get the bounding rectangle of the globe container
 
-    // Clamp the camera position to the defined limits
-    camera.position.z = Math.max(minZoom, Math.min(maxZoom, camera.position.z));
+    // Check if the mouse is over the globe container
+    if (event.clientX >= rect.left && event.clientX <= rect.right &&
+        event.clientY >= rect.top && event.clientY <= rect.bottom) {
+        const zoomSpeed = 0.01; // Adjust zoom speed for smaller jumps
+        const minZoom = 3; // Minimum zoom level
+        const maxZoom = 10; // Maximum zoom level
 
-    // Adjust disk sizes based on zoom level
-    const zoomFactor = (camera.position.z - minZoom) / (maxZoom - minZoom);
-    const newSize = baseDiskSize * (1 + zoomFactor); // Calculate new size based on zoom (reverse logic)
-    markers.forEach(marker => {
-        marker.geometry.dispose(); // Dispose of the old geometry
-        marker.geometry = new THREE.PlaneGeometry(newSize, newSize); // Create a new geometry with the updated size
-        marker.material.needsUpdate = true; // Mark material for update
-    });
+        // Adjust camera position based on scroll direction
+        camera.position.z += event.deltaY * zoomSpeed;
+
+        // Clamp the camera position to the defined limits
+        camera.position.z = Math.max(minZoom, Math.min(maxZoom, camera.position.z));
+
+        // Log the current zoom level
+        console.log(`Current Zoom Level: ${camera.position.z}`);
+
+        // Adjust disk sizes based on zoom level
+        const zoomFactor = (camera.position.z - minZoom) / (maxZoom - minZoom);
+        const newSize = baseDiskSize * (1 + zoomFactor); // Calculate new size based on zoom (reverse logic)
+        markers.forEach(marker => {
+            marker.geometry.dispose(); // Dispose of the old geometry
+            marker.geometry = new THREE.PlaneGeometry(newSize, newSize); // Create a new geometry with the updated size
+            marker.material.needsUpdate = true; // Mark material for update
+        });
+    }
 }
 
 // Add coordinate grid lines
@@ -216,8 +229,8 @@ function drawCountryBorders(geoJson) {
     const borderMaterial = new THREE.LineBasicMaterial({
         color: 0xffffff,
         transparent: false,
-        opacity: 1.0,
-        linewidth: 1
+        opacity: .1,
+        linewidth: .1
     });
     
     let bordersAdded = 0;
@@ -288,8 +301,21 @@ async function addDataPoints() {
     const players = await fetchPlayerData(); // Fetch player data
 
     players.forEach(player => {
-        // Calculate position on the globe, slightly further out
-        const position = latLngToVector3(player.lat, player.lng, 2.1); // Increase radius slightly
+        // Define minimum and maximum distances from the globe
+        const minDistance = 2.3; // Minimum distance from the globe
+        const maxDistance = 2.9; // Maximum distance from the globe
+
+        // Generate a random distance within the specified range
+        const randomDistance = Math.random() * (maxDistance - minDistance) + minDistance;
+
+        // Calculate position on the globe using the random distance
+        const basePosition = latLngToVector3(player.lat, player.lng, randomDistance); 
+        
+        // Define a vertical offset range
+        const verticalOffset = Math.random() * 0.2 - 0.1; // Random offset between -0.1 and 0.1
+
+        // Apply the vertical offset to the Y-coordinate
+        const position = new THREE.Vector3(basePosition.x, basePosition.y + verticalOffset, basePosition.z);
         
         // Create a smaller disk geometry for circular appearance
         const size = baseDiskSize; // Use base size for the disks
@@ -322,13 +348,54 @@ async function addDataPoints() {
                 
                 // Store reference to disk
                 markers.push(disk);
+
+                // Draw line from the globe point to the player image
+                const globePosition = latLngToVector3(player.lat, player.lng, 2.01); // Position on the globe
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 }); // Line color
+                const points = [globePosition, position]; // Start and end points of the line
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, lineMaterial);
+                earthGroup.add(line); // Add line to the earth group
             },
             undefined, // onProgress callback
             function(error) {
                 console.error('Error loading texture for player:', player.name, error);
             }
         );
+
+        // Fetch next games for the player
+        fetchNextGames(player.player_number); // Assuming player_number is the ID for the team
     });
+}
+
+async function fetchNextGames(playerId) {
+    try {
+        const response = await fetch(`/next_games/${playerId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const gamesData = await response.json();
+        displayNextGames(gamesData);
+    } catch (error) {
+        console.error('Error fetching next games:', error);
+    }
+}
+
+function displayNextGames(gamesData) {
+    const gamesList = document.getElementById('games-list');
+    gamesList.innerHTML = ''; // Clear previous games
+
+    if (gamesData && gamesData.response) {
+        gamesData.response.forEach(game => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${game.date} - ${game.homeTeam.name} vs ${game.awayTeam.name}`;
+            gamesList.appendChild(listItem);
+        });
+    } else {
+        const listItem = document.createElement('li');
+        listItem.textContent = 'No upcoming games found.';
+        gamesList.appendChild(listItem);
+    }
 }
 
 // Mouse down event handler
@@ -379,10 +446,29 @@ function handleMouseMove(e) {
         if (intersects.length > 0) {
             const player = intersects[0].object.userData; // Get player data from the intersected object
             const age = calculateAge(player.date_of_birth); // Calculate age
-            tooltip.innerHTML = `Name: ${player.name}<br>Age: ${age}<br>Team: ${player.team}<br>Player Number: ${player.player_number}`; // Show player details
+            tooltip.innerHTML = `
+                <div class="player-name">${player.name} <span class="player-number">#${player.player_number}</span></div>
+                <div>Age: ${age}</div>
+                <div>Team: ${player.team}</div>
+                <div>${player.city}, ${player.country}</div>
+            `;
             tooltip.style.display = 'block';
-            tooltip.style.left = `${e.clientX + 10}px`; // Offset for better visibility
-            tooltip.style.top = `${e.clientY + 10}px`; // Offset for better visibility
+
+            // Calculate the position of the tooltip based on the marker's position
+            const markerPosition = intersects[0].point; // Get the position of the intersected marker
+
+            // Convert marker position to screen coordinates
+            const vector = markerPosition.project(camera);
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-(vector.y * 0.5) + 0.5) * window.innerHeight;
+
+            // Adjust the tooltip position based on the camera's zoom level
+            const zoomFactor = camera.position.z / 5; // Assuming 5 is the base zoom level
+            const tooltipOffsetX = 10; // Horizontal offset for better visibility
+            const tooltipOffsetY = 30; // Vertical offset for better visibility
+
+            tooltip.style.left = `${x + tooltipOffsetX}px`; // Adjust horizontal position
+            tooltip.style.top = `${y - tooltip.offsetHeight - tooltipOffsetY}px`; // Adjust vertical position
             
             // Change cursor to pointer
             container.style.cursor = 'pointer';
@@ -440,7 +526,7 @@ function handleTouchMove(e) {
         };
         
         // Rotate the globe based on touch movement
-        const rotationSpeed = 0.005;
+        const rotationSpeed = 0.003;
         earthGroup.rotation.y += deltaMove.x * rotationSpeed;
         earthGroup.rotation.x += deltaMove.y * rotationSpeed;
         

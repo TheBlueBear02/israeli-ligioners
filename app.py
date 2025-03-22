@@ -15,6 +15,9 @@ load_dotenv()  # Load environment variables from .env file
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')  # Ensure this variable is set in your .env file
 OPENCAGE_URL = 'https://api.opencagedata.com/geocode/v1/json'
 
+# Configuration to enable or disable RapidAPI
+USE_RAPIDAPI = os.getenv('USE_RAPIDAPI', 'true').lower() == 'true'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/israeli_football.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -24,6 +27,9 @@ migrate = Migrate(app, db)
 
 with app.app_context():
     db.create_all()  # Create database tables
+
+FOOTBALL_API_KEY = os.getenv('FOOTBALL_API_KEY')
+FOOTBALL_API_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
 
 @app.route('/')
 def index():
@@ -84,6 +90,28 @@ def get_lat_long(city):
             return 0, 0  # Default to 0 if no results found
     except Exception as e:
         return 0, 0  # Default to 0 on error
+
+@app.route('/next_games/<player_id>', methods=['GET'])
+def get_next_games(player_id):
+    if not USE_RAPIDAPI:
+        print('api disabled from .env file')
+        return jsonify({"error": "RapidAPI usage is disabled."}), 403
+
+    headers = {
+        'x-rapidapi-host': "api-football-v1.p.rapidapi.com",
+        'x-rapidapi-key': FOOTBALL_API_KEY
+    }
+    params = {
+        'team': player_id,  # Assuming player_id corresponds to the team ID
+        'next': 5  # Fetch the next 5 games
+    }
+    
+    response = requests.get(FOOTBALL_API_URL, headers=headers, params=params)
+    
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({"error": "Unable to fetch data"}), response.status_code
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
