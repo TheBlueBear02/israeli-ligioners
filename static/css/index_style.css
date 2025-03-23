@@ -114,3 +114,41 @@ body {
     scrollbar-width: thin; /* Use a thin scrollbar */
     scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color and track color */
 }
+* Add this to your CSS file */
+#games-list {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0;
+    margin: 0;
+}
+
+.game-item {
+    background-color: #1e1e1e; /* Dark background for contrast */
+    color: #ffffff; /* White text for readability */
+    border: 1px solid #444; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 15px; /* Padding for spacing */
+    margin-bottom: 10px; /* Space between items */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.game-item:hover {
+    background-color: #333; /* Change background on hover */
+}
+
+.game-league {
+    font-weight: bold;
+    color: #007BFF; /* Bootstrap primary color */
+    font-size: 1.2em; /* Slightly larger font */
+}
+
+.game-teams {
+    font-weight: normal;
+    color: #ffffff; /* White text */
+    font-size: 1.1em; /* Slightly larger font */
+}
+
+.game-date {
+    font-style: italic;
+    color: #cccccc; /* Lighter color for date */
+    font-size: 0.9em; /* Smaller font for date */
+}

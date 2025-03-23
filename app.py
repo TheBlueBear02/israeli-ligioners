@@ -91,27 +91,90 @@ def get_lat_long(city):
     except Exception as e:
         return 0, 0  # Default to 0 on error
 
-@app.route('/next_games/<player_id>', methods=['GET'])
-def get_next_games(player_id):
+@app.route('/next_games/<team_name>', methods=['GET'])
+def get_next_games(team_name):
     if not USE_RAPIDAPI:
-        print('api disabled from .env file')
+        print('API disabled from .env file')
         return jsonify({"error": "RapidAPI usage is disabled."}), 403
 
     headers = {
-        'x-rapidapi-host': "api-football-v1.p.rapidapi.com",
-        'x-rapidapi-key': FOOTBALL_API_KEY
+        "X-RapidAPI-Key": FOOTBALL_API_KEY,
+        "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
     }
-    params = {
-        'team': player_id,  # Assuming player_id corresponds to the team ID
-        'next': 5  # Fetch the next 5 games
-    }
+
+    # Step 1: Get team ID from team name
+    team_url = "https://api-football-v1.p.rapidapi.com/v3/teams"
+    team_response = requests.get(team_url, headers=headers, params={"search": team_name})
     
-    response = requests.get(FOOTBALL_API_URL, headers=headers, params=params)
+    if team_response.status_code != 200:
+        return jsonify({"error": "Failed to fetch team data"}), team_response.status_code
+
+    team_data = team_response.json()
+
+    if not team_data["response"]:
+        return jsonify({"error": "No team found with that name"}), 404
+
+    selected_team = None
+    for team in team_data["response"]:
+        team_name_clean = team["team"]["name"].lower()
+        if "women" not in team_name_clean and "w" not in team_name_clean:
+            selected_team = team
+            break
+
+    if not selected_team:
+        return jsonify({"error": "Only women's team found, no men's team available"}), 404
+
+    team_id = selected_team["team"]["id"]
+    print("Team ID:", team_id)
+
+    # Step 2: Get next games for the team
+    fixtures_url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
+    fixtures_response = requests.get(fixtures_url, headers=headers, params={"team": str(team_id), "next": "2"})
     
-    if response.status_code == 200:
-        return jsonify(response.json())
-    else:
-        return jsonify({"error": "Unable to fetch data"}), response.status_code
+    if fixtures_response.status_code != 200:
+        return jsonify({"error": "Failed to fetch fixtures"}), fixtures_response.status_code
+
+    fixtures_data = fixtures_response.json()
+
+    if not fixtures_data["response"]:
+        return jsonify({"message": "No upcoming games found for this team"}), 200
+
+    # Step 3: Fetch player images for the teams
+    player_images = {}
+    for match in fixtures_data["response"]:
+        home_team_id = match["teams"]["home"]["id"]
+        away_team_id = match["teams"]["away"]["id"]
+
+        # Fetch players for home team
+        players_response = requests.get(f"https://api-football-v1.p.rapidapi.com/v3/players", headers=headers, params={"team": home_team_id})
+        if players_response.status_code == 200:
+            players_data = players_response.json()
+            if players_data["response"]:
+                player_images[home_team_id] = players_data["response"][0]["player"]["photo"]  # Get the first player's image
+
+        # Fetch players for away team
+        players_response = requests.get(f"https://api-football-v1.p.rapidapi.com/v3/players", headers=headers, params={"team": away_team_id})
+        if players_response.status_code == 200:
+            players_data = players_response.json()
+            if players_data["response"]:
+                player_images[away_team_id] = players_data["response"][0]["player"]["photo"]  # Get the first player's image
+
+    # Format response
+    upcoming_games = []
+    for match in fixtures_data["response"]:
+        home_team_id = match["teams"]["home"]["id"]
+        away_team_id = match["teams"]["away"]["id"]
+        upcoming_games.append({
+            "league": match["league"]["name"],
+            "home_team": match["teams"]["home"]["name"],
+            "away_team": match["teams"]["away"]["name"],
+            "date": match["fixture"]["date"],
+            "home_image": player_images.get(home_team_id, ""),  # Get home team image
+            "away_image": player_images.get(away_team_id, "")   # Get away team image
+        })
+
+    return jsonify({"team_name": selected_team["team"]["name"], "next_games": upcoming_games})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

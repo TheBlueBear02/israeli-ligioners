@@ -364,17 +364,22 @@ async function addDataPoints() {
         );
 
         // Fetch next games for the player
-        fetchNextGames(player.player_number); // Assuming player_number is the ID for the team
+        fetchNextGames(player.team); // Assuming player_number is the ID for the team
     });
 }
 
-async function fetchNextGames(playerId) {
+async function fetchNextGames(teamName) {
     try {
-        const response = await fetch(`/next_games/${playerId}`);
+        const response = await fetch(`/next_games/${teamName}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         const gamesData = await response.json();
+        
+        // Log the gamesData to inspect its structure
+        console.log('Fetched Next Games Data:', gamesData);
+        
+        // Display the next games
         displayNextGames(gamesData);
     } catch (error) {
         console.error('Error fetching next games:', error);
@@ -385,14 +390,57 @@ function displayNextGames(gamesData) {
     const gamesList = document.getElementById('games-list');
     gamesList.innerHTML = ''; // Clear previous games
 
-    if (gamesData && gamesData.response) {
-        gamesData.response.forEach(game => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${game.date} - ${game.homeTeam.name} vs ${game.awayTeam.name}`;
-            gamesList.appendChild(listItem);
+    // Check if gamesData has the expected structure
+    if (gamesData && gamesData.next_games && Array.isArray(gamesData.next_games)) {
+        gamesData.next_games.forEach(game => {
+            // Ensure game has the expected properties
+            if (game.league && game.home_team && game.away_team && game.date) {
+                const date = new Date(game.date).toLocaleString(); // Format date
+
+                // Create a new list item with better structure
+                const listItem = document.createElement('div');
+                listItem.classList.add('game-item'); // Add a class for styling
+
+                // Create elements for better structure
+                const leagueElement = document.createElement('div');
+                leagueElement.classList.add('game-league');
+                leagueElement.textContent = game.league;
+
+                const teamsElement = document.createElement('div');
+                teamsElement.classList.add('game-teams');
+
+                // Create image elements for teams
+                const homeImage = document.createElement('img');
+                homeImage.src = game.home_image;
+                homeImage.alt = `${game.home_team} logo`;
+                homeImage.classList.add('team-image');
+
+                const awayImage = document.createElement('img');
+                awayImage.src = game.away_image;
+                awayImage.alt = `${game.away_team} logo`;
+                awayImage.classList.add('team-image');
+
+                teamsElement.appendChild(homeImage);
+                teamsElement.appendChild(document.createTextNode(` ${game.home_team} vs ${game.away_team} `));
+                teamsElement.appendChild(awayImage);
+
+                const dateElement = document.createElement('div');
+                dateElement.classList.add('game-date');
+                dateElement.textContent = date;
+
+                // Append elements to the list item
+                listItem.appendChild(leagueElement);
+                listItem.appendChild(teamsElement);
+                listItem.appendChild(dateElement);
+
+                // Append the list item to the games list
+                gamesList.appendChild(listItem);
+            } else {
+                console.warn('Game data is missing expected properties:', game);
+            }
         });
     } else {
-        const listItem = document.createElement('li');
+        const listItem = document.createElement('div');
         listItem.textContent = 'No upcoming games found.';
         gamesList.appendChild(listItem);
     }
@@ -545,8 +593,8 @@ function handleTouchMove(e) {
         camera.position.z = initialCameraZ * zoomFactor;
 
         // Clamp the camera position to the defined limits
-        const minZoom = 3; // Minimum zoom level
-        const maxZoom = 10; // Maximum zoom level
+        const minZoom = 4; // Minimum zoom level
+        const maxZoom = 6; // Maximum zoom level
         camera.position.z = Math.max(minZoom, Math.min(maxZoom, camera.position.z));
     }
 }
