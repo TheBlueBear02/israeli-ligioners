@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Donation Wall</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      margin-bottom: 5px;
+    }
+    .wall {
+      margin: 20px auto;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .donor {
+      margin: 100px;
+      cursor: pointer;
+      transition: transform 0.3s;
+      border-radius: 8px;
+      padding: 2px 6px;
+    }
+    .donor:hover {
+      transform: scale(1.2);
+      background: rgba(0,0,0,0.05);
+    }
+    #donate-btn {
+      margin-top: 20px;
+      width: 200px;
+      height: 50px;
+      padding: 0px;
+      font-size: 24px;
+      color: white;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    #donate-btn:hover {
+      opacity: 0.9;
+    }
+    .tooltip {
+      position: absolute;
+      background: black;
+      color: white;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-radius: 5px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 80px;
+      background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+      z-index: 10;
+    }
+    .sidebar-btn {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 24px;
+      border: none;
+      border-radius: 16px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      font-size: 0;
+      position: relative;
+      outline: none;
+    }
+    .sidebar-btn:hover {
+      background: #e0f7fa;
+      transform: scale(1.08);
+    }
+    .sidebar-btn svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+    .sidebar-btn-label {
+      position: absolute;
+      left: 70px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #fff;
+      color: #00bcd4;
+      font-size: 15px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .sidebar-btn:hover .sidebar-btn-label {
+      opacity: 1;
+    }
+    /* Palette popup styles */
+    .palette-popup {
+      position: absolute;
+      left: 70px;
+      top: 0;
+      display: flex;
+      flex-direction: row;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+      padding: 10px 12px;
+      z-index: 100;
+      gap: 12px;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .sidebar-btn.palette-active .palette-popup {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .palette-color {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: border 0.2s, transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .palette-color.selected {
+      border: 2.5px solid #00bcd4;
+      transform: scale(1.12);
+    }
+    /* Adjust main content to not be hidden by sidebar */
+    body {
+      margin-left: 80px;
+    }
+    @media (max-width: 600px) {
+      .sidebar { width: 56px; padding-top: 16px; }
+      .sidebar-btn { width: 40px; height: 40px; border-radius: 10px; }
+      .sidebar-btn svg { width: 20px; height: 20px; }
+      body { margin-left: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <button class="sidebar-btn" id="add-random-btn" title="Add Random Donation">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#4facfe"/><path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="sidebar-btn-label">Add Donation</span>
+    </button>
+    <button class="sidebar-btn" id="remove-last-btn" title="Remove Last Donation">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ff6b81"/><path d="M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="sidebar-btn-label">Remove Donation</span>
+    </button>
+    <button class="sidebar-btn" id="palette-btn" title="Change Wall Colors" style="position:relative;">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffd600"/><path d="M7 15a5 5 0 0 1 10 0c0 2-2 3-5 3s-5-1-5-3z" fill="#fff"/><circle cx="9" cy="10" r="1.2" fill="#ff6b81"/><circle cx="12" cy="8.5" r="1.2" fill="#4facfe"/><circle cx="15" cy="10" r="1.2" fill="#00e676"/></svg>
+      <span class="sidebar-btn-label">Color Palette</span>
+      <div class="palette-popup" id="palette-popup">
+        <div class="palette-color" data-palette="colorful" title="Colorful" style="background: linear-gradient(135deg,#4facfe 40%,#ff6b81 100%);"></div>
+        <div class="palette-color" data-palette="black" title="Black" style="background: #222;"></div>
+        <div class="palette-color" data-palette="blue" title="Blue" style="background: #2196f3;"></div>
+        <div class="palette-color" data-palette="pink" title="Pink" style="background: #fa3979;"></div>
+        <div class="palette-color" data-palette="green" title="Green" style="background: #43ea7c;"></div>
+        <div class="palette-color" data-palette="red" title="Red" style="background: #ff1100;"></div>
+      </div>
+    </button>
+    <!-- Future buttons can be added here -->
+  </div>
+  <h2>Campaign Raised: <span id="totalAmount"></span>£</h2>
+  <p>From <span id="totalDonors"></span> Donors</p>
+
+<canvas id="wordcloud-canvas" class="wall" width="1000" height="500" style="display:block;"></canvas>
+
+
+  <button id="donate-btn">Donate</button>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.0/dist/panzoom.min.js"></script>
+  <script>
+    // Function to get a random integer between min and max (inclusive)
+    function getRandomAmount() {
+      min = 1;
+      max = 1000;
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Example donor data
+    const donors = [
+      { name: "Adaline Gibson", amount: getRandomAmount() },
+      { name: "Hadleigh Osborne", amount: getRandomAmount() },
+      { name: "Jad Foster", amount: getRandomAmount() },
+      { name: "Amir Cohen", amount: getRandomAmount() },
+      { name: "Lina Wong", amount: getRandomAmount() },
+      { name: "John Smith", amount: getRandomAmount() },
+      { name: "Priya Patel", amount: getRandomAmount() },
+      { name: "Sofia Rossi", amount: getRandomAmount() },
+      { name: "Noah Kim", amount: getRandomAmount() },
+      { name: "Emily Johnson", amount: getRandomAmount() },
+      { name: "Lucas Müller", amount: getRandomAmount() },
+      { name: "Olivia Brown", amount: getRandomAmount() },
+      { name: "Mateo Garcia", amount: getRandomAmount() },
+      { name: "Chloe Dubois", amount: getRandomAmount() },
+      { name: "Ethan Lee", amount: getRandomAmount() },
+      { name: "Mia Novak", amount: getRandomAmount() },
+      { name: "William Evans", amount: getRandomAmount() },
+      { name: "Ava Wilson", amount: getRandomAmount() },
+      { name: "Benjamin Clark", amount: getRandomAmount() },
+      { name: "Isabella Martin", amount: getRandomAmount() },
+      { name: "James Thompson", amount: getRandomAmount() },
+      { name: "Charlotte White", amount: getRandomAmount() },
+      { name: "Alexander Harris", amount: getRandomAmount() },
+      { name: "Amelia Lewis", amount: getRandomAmount() },
+      { name: "Daniel Walker", amount: getRandomAmount() },
+      { name: "Grace Hall", amount: getRandomAmount() },
+      { name: "Adaline Gibson", amount: getRandomAmount() },
+      { name: "Hadleigh Osborne", amount: getRandomAmount() },
+      { name: "Jad Foster", amount: getRandomAmount() },
+      { name: "Amir Cohen", amount: getRandomAmount() },
+      { name: "Lina Wong", amount: getRandomAmount() },
+      { name: "John Smith", amount: getRandomAmount() },
+      { name: "Priya Patel", amount: getRandomAmount() },
+      { name: "Sofia Rossi", amount: getRandomAmount() },
+      { name: "Noah Kim", amount: getRandomAmount() },
+      { name: "Emily Johnson", amount: getRandomAmount() },
+      { name: "Lucas Müller", amount: getRandomAmount() },
+      { name: "Olivia Brown", amount: getRandomAmount() },
+      { name: "Mateo Garcia", amount: getRandomAmount() },
+      { name: "Chloe Dubois", amount: getRandomAmount() },
+      { name: "Ethan Lee", amount: getRandomAmount() },
+      { name: "Mia Novak", amount: getRandomAmount() },
+      { name: "William Evans", amount: getRandomAmount() },
+      { name: "Ava Wilson", amount: getRandomAmount() },
+      { name: "Benjamin Clark", amount: getRandomAmount() },
+      { name: "Isabella Martin", amount: getRandomAmount() },
+      { name: "James Thompson", amount: getRandomAmount() },
+      { name: "Charlotte White", amount: getRandomAmount() },
+      { name: "Alexander Harris", amount: getRandomAmount() },
+      { name: "Amelia Lewis", amount: getRandomAmount() },
+      { name: "Daniel Walker", amount: getRandomAmount() },
+      { name: "Grace Hall", amount: getRandomAmount() }
+    ];
+
+    // --- Word Cloud ---
+    // Use all donors (including duplicates)
+    const wordList = donors.map(d => [d.name, d.amount]);
+
+    // Dynamically calculate multiplier for weightFactor
+    const avgAmount = donors.reduce((sum, d) => sum + d.amount, 0) / donors.length;
+    // Calculate target average font size based on number of donations
+    const minFontSize = 18;
+    const maxFontSize = 40;
+    // As number of donations increases, decrease average font size (clamped)
+    const targetAvgFontSize = Math.max(
+      minFontSize,
+      maxFontSize - donors.length * 0.3
+    );
+    const baseFont = 5; // Minimum font size
+    const avgLog = Math.log(avgAmount + 1);
+    const multiplier = (targetAvgFontSize - baseFont) / avgLog;
+
+    WordCloud(document.getElementById('wordcloud-canvas'), {
+      list: wordList,
+      gridSize: 12,
+      weightFactor: function (size) {
+        return baseFont + Math.log(size + 1) * multiplier;
+      },
+      fontFamily: 'Arial',
+      color: 'random-dark',
+      rotateRatio: 0,         // No rotation
+      rotationSteps: 1,       // Only 0deg
+      backgroundColor: '#fff',
+      minSize: 8,             // Allow smaller font size
+      drawOutOfBound: false,
+      shuffle: false,
+      shrinkToFit: true, // Try to fit all words
+
+      hover: function(item, dimension, event) {
+        const tooltip = document.getElementById('tooltip');
+        if (item) {
+          // Find donor info
+          const donor = donors.find(d => d.name === item[0]);
+          if (donor) {
+            tooltip.innerText = `${donor.name}: £${donor.amount}`;
+          } else {
+            tooltip.innerText = `${item[0]}`;
+          }
+          tooltip.style.left = (event.clientX + 10) + 'px';
+          tooltip.style.top = (event.clientY + 10 + window.scrollY) + 'px';
+          tooltip.style.opacity = 1;
+        } else {
+          tooltip.style.opacity = 0;
+        }
+      }
+    });
+
+    // Update stats
+    function updateStats() {
+      const totalAmount = donors.reduce((sum, d) => sum + d.amount, 0);
+      const totalDonors = donors.length;
+      document.getElementById("totalAmount").innerText = totalAmount.toLocaleString();
+      document.getElementById("totalDonors").innerText = totalDonors;
+    }
+    updateStats();
+
+    // --- Add/Remove Donation Buttons ---
+    function updateWordCloud() {
+      const wordList = donors.map(d => [d.name, d.amount]);
+      const avgAmount = donors.reduce((sum, d) => sum + d.amount, 0) / donors.length;
+      const minFontSize = 18;
+      const maxFontSize = 40;
+      const targetAvgFontSize = Math.max(
+        minFontSize,
+        maxFontSize - donors.length * 0.3
+      );
+      const baseFont = 5;
+      const avgLog = Math.log(avgAmount + 1);
+      const multiplier = (targetAvgFontSize - baseFont) / avgLog;
+      WordCloud(document.getElementById('wordcloud-canvas'), {
+        list: wordList,
+        gridSize: 12,
+        weightFactor: function (size) {
+          return baseFont + Math.log(size + 1) * multiplier;
+        },
+        fontFamily: 'Arial',
+        color: 'random-dark',
+        rotateRatio: 0,
+        rotationSteps: 1,
+        backgroundColor: '#fff',
+        minSize: 8,
+        drawOutOfBound: false,
+        shuffle: true,
+        shrinkToFit: true,
+        hover: function(item, dimension, event) {
+          const tooltip = document.getElementById('tooltip');
+          if (item) {
+            const donor = donors.find(d => d.name === item[0]);
+            if (donor) {
+              tooltip.innerText = `${donor.name}: £${donor.amount}`;
+            } else {
+              tooltip.innerText = `${item[0]}`;
+            }
+            tooltip.style.left = (event.clientX + 10) + 'px';
+            tooltip.style.top = (event.clientY + 10 + window.scrollY) + 'px';
+            tooltip.style.opacity = 1;
+          } else {
+            tooltip.style.opacity = 0;
+          }
+        }
+      });
+    }
+
+    function getRandomName() {
+      const names = [
+        "Alex Turner", "Sam Carter", "Morgan Lee", "Taylor Brooks", "Jordan Reed",
+        "Casey Morgan", "Riley Quinn", "Jamie Parker", "Drew Bailey", "Avery Lane"
+      ];
+      return names[Math.floor(Math.random() * names.length)];
+    }
+
+    document.getElementById('add-random-btn').onclick = function() {
+      donors.push({ name: getRandomName(), amount: getRandomAmount() });
+      updateWordCloud();
+      updateStats();
+    };
+
+    document.getElementById('remove-last-btn').onclick = function() {
+      if (donors.length > 0) {
+        donors.pop();
+        updateWordCloud();
+        updateStats();
+      }
+    };
+
+    // --- Color Palette Logic ---
+    const paletteBtn = document.getElementById('palette-btn');
+    const palettePopup = document.getElementById('palette-popup');
+    const paletteColors = palettePopup.querySelectorAll('.palette-color');
+    let currentPalette = 'colorful';
+
+    // Color palette definitions
+    const paletteDefs = {
+      colorful: {
+        color: 'random-dark',
+        backgroundColor: '#fff',
+      },
+      black: {
+        color: [
+          '#111', '#222', '#333', '#444', '#555', '#666', '#888', '#aaa'
+        ],
+        backgroundColor: '#fff',
+      },
+      blue: {
+        color: [
+          '#1565c0', '#1976d2', '#1e88e5', '#2196f3', '#42a5f5', '#64b5f6', '#1976d2', '#1565c0'
+        ],
+        backgroundColor: '#fff',
+      },
+      pink: {
+        color: [
+          '#ad1457', '#c2185b', '#d81b60', '#e91e63', '#ec407a', '#f06292', '#d81b60', '#ad1457'
+        ],
+        backgroundColor: '#fff',
+      },
+      green: {
+        color: [
+          '#00695c', '#00897b', '#26a69a', '#43ea7c', '#66bb6a', '#81c784', '#26a69a', '#00695c'
+        ],
+        backgroundColor: '#fff',
+      },
+      red: {
+        color: [
+          '#b71c1c', '#c62828', '#d32f2f', '#e53935', '#f44336', '#ff1744', '#e57373', '#ff8a80'
+        ],
+        backgroundColor: '#fff',
+      },
+    };
+
+    // Show/hide palette popup
+    paletteBtn.onclick = function(e) {
+      e.stopPropagation();
+      paletteBtn.classList.toggle('palette-active');
+    };
+    document.body.addEventListener('click', function() {
+      paletteBtn.classList.remove('palette-active');
+    });
+
+    // Palette selection logic
+    paletteColors.forEach(el => {
+      el.onclick = function() {
+        paletteColors.forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        const palette = el.getAttribute('data-palette');
+        currentPalette = palette;
+        updateWordCloud();
+        paletteBtn.classList.remove('palette-active');
+      };
+      if (el.getAttribute('data-palette') === currentPalette) {
+        el.classList.add('selected');
+      }
+    });
+
+    // Patch updateWordCloud to use palette
+    function updateWordCloud() {
+      const wordList = donors.map(d => [d.name, d.amount]);
+      const avgAmount = donors.reduce((sum, d) => sum + d.amount, 0) / donors.length;
+      const minFontSize = 18;
+      const maxFontSize = 40;
+      const targetAvgFontSize = Math.max(
+        minFontSize,
+        maxFontSize - donors.length * 0.3
+      );
+      const baseFont = 5;
+      const avgLog = Math.log(avgAmount + 1);
+      const multiplier = (targetAvgFontSize - baseFont) / avgLog;
+      const palette = paletteDefs[currentPalette];
+      let colorOption = palette.color;
+      if (Array.isArray(colorOption)) {
+        colorOption = function() {
+          const arr = palette.color;
+          return arr[Math.floor(Math.random() * arr.length)];
+        };
+      }
+      WordCloud(document.getElementById('wordcloud-canvas'), {
+        list: wordList,
+        gridSize: 12,
+        weightFactor: function (size) {
+          return baseFont + Math.log(size + 1) * multiplier;
+        },
+        fontFamily: 'Arial',
+        color: colorOption,
+        rotateRatio: 0,
+        rotationSteps: 1,
+        backgroundColor: palette.backgroundColor,
+        minSize: 8,
+        drawOutOfBound: false,
+        shuffle: true,
+        shrinkToFit: true,
+        hover: function(item, dimension, event) {
+          const tooltip = document.getElementById('tooltip');
+          if (item) {
+            const donor = donors.find(d => d.name === item[0]);
+            if (donor) {
+              tooltip.innerText = `${donor.name}: £${donor.amount}`;
+            } else {
+              tooltip.innerText = `${item[0]}`;
+            }
+            tooltip.style.left = (event.clientX + 10) + 'px';
+            tooltip.style.top = (event.clientY + 10 + window.scrollY) + 'px';
+            tooltip.style.opacity = 1;
+          } else {
+            tooltip.style.opacity = 0;
+          }
+        }
+      });
+    }
+
+    // Initial palette selection
+    updateWordCloud();
+  </script>
+</body>
+</html>

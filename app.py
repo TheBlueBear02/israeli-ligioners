@@ -18,7 +18,12 @@ OPENCAGE_URL = 'https://api.opencagedata.com/geocode/v1/json'
 # Configuration to enable or disable RapidAPI
 USE_RAPIDAPI = os.getenv('USE_RAPIDAPI', 'true').lower() == 'true'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/israeli_football.db'
+# Ensure the 'instance' directory exists
+INSTANCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+os.makedirs(INSTANCE_DIR, exist_ok=True)
+DB_PATH = os.path.join(INSTANCE_DIR, 'israeli_football.db')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
@@ -33,12 +38,12 @@ FOOTBALL_API_URL = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('globe.html')
 
 @app.route('/players', methods=['GET'])
 def get_players():
     # Connect to the SQLite database
-    conn = sqlite3.connect('instance/israeli_football.db')  # Ensure the path is correct
+    conn = sqlite3.connect(DB_PATH)  # Use the absolute path
     cursor = conn.cursor()
 
     # Query to fetch player data
