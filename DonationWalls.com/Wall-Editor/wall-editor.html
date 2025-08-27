@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wall Editor</title>
+  <link rel="stylesheet" href="css/wall.css">
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+  <div class="floating-sidebar">
+    <button class="payment-service-btn" id="payment-service-btn" title="Select Payment Service">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill="#4CAF50"/>
+        <path d="M7 10l5 5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="payment-service-label">Connect Payment</span>
+      <div class="payment-service-popup" id="payment-service-popup">
+        <div class="payment-option" data-service="paypal">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <rect width="24" height="24" rx="4" fill="#003087"/>
+            <path d="M7.5 8h9c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5h-9C6.67 16 6 15.33 6 14.5v-5C6 8.67 6.67 8 7.5 8z" fill="#009CDE"/>
+            <path d="M9 10.5h6v1H9v-1zm0 2h4v1H9v-1z" fill="#fff"/>
+          </svg>
+          <span>PayPal</span>
+        </div>
+        <div class="payment-option" data-service="stripe">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <rect width="24" height="24" rx="4" fill="#6772E5"/>
+            <path d="M8 8h8v8H8V8zm2 2v4h4v-4h-4z" fill="#fff"/>
+            <path d="M11 10h2v2h-2v-2zm0 3h2v1h-2v-1z" fill="#6772E5"/>
+          </svg>
+          <span>Stripe</span>
+        </div>
+      </div>
+    </button>
+    
+    <button class="publish-btn" id="publish-btn" title="Publish Wall">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+        <circle cx="12" cy="12" r="10" fill="#2196F3"/>
+        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z" fill="#fff"/>
+      </svg>
+      <span class="publish-label">Publish</span>
+    </button>
+    
+  </div>
+  <div class="sidebar">
+    <button class="sidebar-btn" id="palette-btn" title="Change Wall Colors" style="position:relative;">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ffd600"/><path d="M7 15a5 5 0 0 1 10 0c0 2-2 3-5 3s-5-1-5-3z" fill="#fff"/><circle cx="9" cy="10" r="1.2" fill="#ff6b81"/><circle cx="12" cy="8.5" r="1.2" fill="#4facfe"/><circle cx="15" cy="10" r="1.2" fill="#00e676"/></svg>
+      <span class="sidebar-btn-label">Color Palette</span>
+      <div class="menu-popup" id="palette-popup">
+        <div class="menu-button" data-palette="colorful" title="Colorful" style="background: linear-gradient(135deg,#4facfe 40%,#ff6b81 100%);"></div>
+        <div class="menu-button" data-palette="black" title="Black" style="background: #222;"></div>
+        <div class="menu-button" data-palette="blue" title="Blue" style="background: #2196f3;"></div>
+        <div class="menu-button" data-palette="pink" title="Pink" style="background: #fa3979;"></div>
+        <div class="menu-button" data-palette="green" title="Green" style="background: #43ea7c;"></div>
+        <div class="menu-button" data-palette="red" title="Red" style="background: #ff1100;"></div>
+      </div>
+    </button>
+    <button class="sidebar-btn" id="shape-btn" title="Change WordCloud Shape" style="position:relative;">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#7c4dff"/><path d="M12 6a6 6 0 1 1 0 12 6 6 0 0 1 0-12z" fill="#fff"/></svg>
+      <span class="sidebar-btn-label">Shape</span>
+      <div class="menu-popup" id="shape-popup">
+        <div class="menu-button shape-option" data-shape="cloud" title="Cloud">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18c-2.21 0-4-1.79-4-4 0-1.86 1.28-3.44 3.01-3.87C5.53 7.86 7.62 6 10.2 6c2.34 0 4.35 1.5 5.06 3.62.19-.04.39-.06.6-.06 2.21 0 4 1.79 4 4s-1.79 4-4 4H6z"></path></svg>
+        </div>
+        <div class="menu-button shape-option" data-shape="circle" title="Circle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle></svg>
+        </div>
+        <div class="menu-button shape-option" data-shape="cardioid" title="Cardioid">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.716-4.373-9.193-8.122C1.137 10.096 2.514 6 6.5 6c2.013 0 3.57 1.07 4.5 2.57C11.93 7.07 13.487 6 15.5 6c3.986 0 5.363 4.096 3.693 6.878C18.716 16.627 12 21 12 21z"></path></svg>
+        </div>
+        <div class="menu-button shape-option" data-shape="diamond" title="Diamond">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l6 8-6 8-6-8z"></path></svg>
+        </div>
+        <div class="menu-button shape-option" data-shape="triangle" title="Triangle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 14H4z"></path></svg>
+        </div>
+        <div class="menu-button shape-option" data-shape="star" title="Star">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01z"></path></svg>
+        </div>
+      </div>
+    </button>
+    <button class="sidebar-btn" id="font-btn" title="Change Font" style="position:relative;">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#8e8e93"/><text x="12" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">F</text></svg>
+      <span class="sidebar-btn-label">Font</span>
+      <div class="menu-popup vertical-popup" id="font-popup">
+        <div class="menu-button font-option vertical-option" data-font="Arial" style="font-family: Arial;"><span>Arial</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Verdana" style="font-family: Verdana;"><span>Verdana</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Georgia" style="font-family: Georgia;"><span>Georgia</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Rubik Spray Paint" style="font-family: 'Rubik Spray Paint', cursive;"><span>Graffiti</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Courier New" style="font-family: 'Courier New';"><span>Courier New</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Roboto" style="font-family: Roboto;"><span>Roboto</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Montserrat" style="font-family: Montserrat;"><span>Montserrat</span></div>
+        <div class="menu-button font-option vertical-option" data-font="Open Sans" style="font-family: 'Open Sans';"><span>Open Sans</span></div>
+      </div>
+    </button>
+    <button class="sidebar-btn" id="font-weight-btn" title="Change Font Weight" style="position:relative;">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ff9800"/><path d="M6 7h12v2H6V7zm0 4h12v2H6v-2zm0 4h12v2H6v-2z" fill="#fff"/></svg>
+      <span class="sidebar-btn-label">Font Weight</span>
+      <div class="menu-popup vertical-popup" id="font-weight-popup">
+        <div class="menu-button font-weight-option vertical-option" data-weight="300" style="font-weight: 300;"><span>Light</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="400" style="font-weight: 400;"><span>Normal</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="500" style="font-weight: 500;"><span>Medium</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="600" style="font-weight: 600;"><span>Semi-Bold</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="700" style="font-weight: 700;"><span>Bold</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="800" style="font-weight: 800;"><span>Extra Bold</span></div>
+        <div class="menu-button font-weight-option vertical-option" data-weight="900" style="font-weight: 900;"><span>Black</span></div>
+      </div>
+    </button>
+    <button class="sidebar-btn" id="add-random-btn" title="Add Random Donation">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#4facfe"/><path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="sidebar-btn-label">Add Donation</span>
+        <div class="menu-popup" id="add-menu-popup">
+          <div class="menu-button" id="add-single-btn"><span>1</span></div>
+          <div class="menu-button" id="add-multiple-btn"><span>5</span></div>
+          <div class="menu-button" id="add-bulk-btn"><span>10</span></div>
+          <div class="menu-button" id="add-large-btn"><span>25</span></div>
+        </div>
+    </button>
+    <button class="sidebar-btn" id="remove-last-btn" title="Remove Last Donation">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ff6b81"/><path d="M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="sidebar-btn-label">Remove Donation</span>
+        <div class="menu-popup" id="remove-menu-popup">
+          <div class="menu-button" id="remove-single-btn"><span>1</span></div>
+          <div class="menu-button" id="remove-multiple-btn"><span>5</span></div>
+          <div class="menu-button" id="remove-bulk-btn"><span>10</span></div><div class="menu-button" id="remove-large-btn"><span>25</span> </div>
+        </div>
+    </button>
+
+    
+    <!-- Future buttons can be added here -->
+  </div>
+  <div class="wall-widget">
+    <div class="header" id="header">
+      <div class="header-left">
+        <h2>Already Raised: <span id="totalAmount"></span>$</h2>
+        <p>From <span id="totalDonors"></span> Donors</p>
+      </div>
+      <div class="header-center">
+        <h1>Wall Title</h1>
+        <h2>Wall Subtitle</h2>
+      </div>
+      <div class="header-right">
+        <h2>Time left:</h2>
+        <p>3 days 12 hours 34 minutes</p>
+      </div>
+    </div> 
+    <!-- name wall appears here with js -->
+    <div class="footer">
+      <div class="footer-left">
+        <h3>Goal Progress</h3>
+        <p><span id="goalProgress">75%</span> Complete</p>
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar" style="width: 75%;"></div>
+        </div>
+      </div>
+      <div class="footer-center">
+        <h2>Make a Difference</h2>
+        <p>Every donation counts towards our mission</p>
+        <div class="footer-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="avgDonation">$25</div>
+            <div class="stat-label">Avg Donation</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="recentDonors">12</div>
+            <div class="stat-label">Today</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="totalDays">45</div>
+            <div class="stat-label">Days Left</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <button id="donate-btn">Donate Now</button>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="tooltip" id="tooltip"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.0/dist/panzoom.min.js"></script>
+  <script src="Js/donors-data.js"></script>
+  <script src="Js/utils.js"></script>
+  <script src="Js/styling-manager.js"></script>
+  <script src="Js/data-manager.js"></script>
+  <script src="Js/wordcloud-manager.js"></script>
+  <script src="Js/ui-controller.js"></script>
+  <script src="Js/main.js"></script>
+</body>
+</html>

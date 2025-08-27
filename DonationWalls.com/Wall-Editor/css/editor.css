@@ -1,0 +1,558 @@
+/* ========================================
+   EDITOR CSS - REORGANIZED STRUCTURE
+   ======================================== */
+
+/* ========================================
+   1. SIDEBAR STYLES
+   ======================================== */
+
+/* Main sidebar container */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px;
+  background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+  z-index: 10;
+}
+
+/* Sidebar button base styles */
+.sidebar-btn {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 24px;
+  border: none;
+  border-radius: 16px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  font-size: 0;
+  position: relative;
+  outline: none;
+}
+
+.sidebar-btn:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+.sidebar-btn svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+/* Sidebar button active states */
+.sidebar-btn.palette-active {
+  background: #e3f2fd;
+}
+
+.sidebar-btn.shape-active {
+  background: #ede7f6;
+  transform: scale(1.08);
+}
+
+.sidebar-btn.add-menu-active {
+  background: #e0f7fa;
+  transform: scale(1.08);
+}
+
+.sidebar-btn.remove-menu-active {
+  background: #ffebee;
+  transform: scale(1.08);
+}
+
+.sidebar-btn.font-weight-active {
+  background: #fff3e0;
+  transform: scale(1.08);
+}
+
+/* ========================================
+   2. SIDEBAR BUTTON LABELS
+   ======================================== */
+
+/* Primary label styling */
+.sidebar-btn-label {
+  position: absolute;
+  left: 70px;
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+
+.sidebar-btn:hover .sidebar-btn-label {
+  opacity: 1;
+}
+
+/* Alternative label styling */
+.sidebar-btn-label {
+  position: absolute;
+  left: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  color: #00bcd4;
+  font-size: 15px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.sidebar-btn:hover .sidebar-btn-label {
+  opacity: 1;
+}
+
+/* Hide labels when popup is active */
+.sidebar-btn.palette-active .sidebar-btn-label,
+.sidebar-btn.add-menu-active .sidebar-btn-label,
+.sidebar-btn.remove-menu-active .sidebar-btn-label,
+.sidebar-btn.font-active .sidebar-btn-label,
+.sidebar-btn.font-weight-active .sidebar-btn-label,
+.sidebar-btn.shape-active .sidebar-btn-label,
+.sidebar-btn.palette-active:hover .sidebar-btn-label,
+.sidebar-btn.add-menu-active:hover .sidebar-btn-label,
+.sidebar-btn.remove-menu-active:hover .sidebar-btn-label,
+.sidebar-btn.font-active:hover .sidebar-btn-label,
+.sidebar-btn.font-weight-active:hover .sidebar-btn-label,
+.sidebar-btn.shape-active:hover .sidebar-btn-label {
+  opacity: 0;
+}
+
+/* ========================================
+   3. MENU POPUP STYLES
+   ======================================== */
+
+/* Base popup styles */
+.menu-popup {
+  position: absolute;
+  left: 70px;
+  top: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  padding: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+  min-width: 160px;
+}
+
+/* Popup visibility states */
+.sidebar-btn.palette-active .menu-popup,
+.sidebar-btn.add-menu-active .menu-popup,
+.sidebar-btn.remove-menu-active .menu-popup,
+.sidebar-btn.font-active .menu-popup,
+.sidebar-btn.font-weight-active .menu-popup,
+.sidebar-btn.shape-active .menu-popup {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Palette popup specific styles */
+.menu-popup {
+  position: absolute;
+  left: 70px;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+  padding: 10px 12px;
+  z-index: 100;
+  gap: 12px;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.sidebar-btn.palette-active .menu-popup,
+.sidebar-btn.add-menu-active .menu-popup,
+.sidebar-btn.remove-menu-active .menu-popup,
+.sidebar-btn.font-active .menu-popup,
+.sidebar-btn.font-weight-active .menu-popup,
+.sidebar-btn.shape-active .menu-popup {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========================================
+   4. MENU BUTTON STYLES
+   ======================================== */
+
+/* Base menu button styles */
+.menu-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #eee;
+  cursor: pointer;
+  transition: border 0.2s, transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+}
+
+.menu-button:hover {
+  transform: scale(1.1);
+  border-color: #333;
+}
+
+.menu-button.selected {
+  border: 2.5px solid #00bcd4;
+  transform: scale(1.12);
+}
+
+/* Shape-specific styles */
+.shape-option svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Shape color assignments */
+[data-shape="cloud"] { background: #03a9f4; }
+[data-shape="circle"] { background: #7c4dff; }
+[data-shape="cardioid"] { background: #e91e63; }
+[data-shape="diamond"] { background: #00bcd4; }
+[data-shape="triangle"] { background: #ffc107; }
+[data-shape="star"] { background: #4caf50; }
+
+/* Add menu button colors */
+#add-single-btn { background: #4facfe; }
+#add-multiple-btn { background: #00e676; }
+#add-bulk-btn { background: #ff9800; }
+#add-large-btn { background: #9c27b0; }
+
+/* Remove menu button colors */
+#remove-single-btn { background: #ff6b81; }
+#remove-multiple-btn { background: #ff4757; }
+#remove-bulk-btn { background: #ff3838; }
+#remove-large-btn { background: #d32f2f; }
+
+/* ========================================
+   5. MENU COLOR STYLES
+   ======================================== */
+
+.menu-color {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  margin: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: 2px solid transparent;
+}
+
+.menu-color:hover {
+  transform: scale(1.1);
+}
+
+.menu-color.selected {
+  border-color: #333;
+}
+
+/* ========================================
+   6. MENU ITEM STYLES
+   ======================================== */
+
+.menu-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  color: #333;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-item:hover {
+  background: #f0f0f0;
+}
+
+.menu-item svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ========================================
+   7. FONT OPTION STYLES
+   ======================================== */
+
+.font-option {
+  color: #333;
+  border-radius: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 8px 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  width: 50px;
+}
+
+.font-weight-option {
+  color: #333;
+  border-radius: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  width: 80px;
+}
+
+/* Vertical popup styles */
+.vertical-popup {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vertical-option {
+  width: 90%;
+}
+
+.menu-button.selected.vertical-option {
+  background: #00bbd44b;
+  border: none;
+  transform: scale(1);
+}
+
+/* ========================================
+   8. FLOATING SIDEBAR STYLES
+   ======================================== */
+
+.floating-sidebar {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: auto;
+  min-height: 40px;
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  border-radius: 18px;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+/* ========================================
+   9. PAYMENT SERVICE STYLES
+   ======================================== */
+
+/* Payment service button */
+.payment-service-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  color: grey;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  min-width: 100px;
+  border: 1px solid #e0e0e0;
+}
+
+.payment-service-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+}
+
+.payment-service-btn.payment-active {
+  transform: scale(1.02);
+}
+
+.payment-service-btn svg {
+  flex-shrink: 0;
+}
+
+.payment-service-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Payment service popup */
+.payment-service-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  padding: 8px;
+  margin-top: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  border: 1px solid #e0e0e0;
+}
+
+.payment-service-btn.payment-active .payment-service-popup {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.payment-service-popup::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-left: 1px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+/* Payment option styles */
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.payment-option:hover {
+  background: #f5f5f5;
+  transform: translateX(4px);
+}
+
+.payment-option.selected {
+  background: #e8f5e8;
+  color: #2e7d32;
+  border-left: 3px solid #4CAF50;
+}
+
+.payment-option svg {
+  flex-shrink: 0;
+}
+
+.payment-option span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ========================================
+   10. PUBLISH BUTTON STYLES
+   ======================================== */
+
+.publish-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+  min-width: 80px;
+}
+
+.publish-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.4);
+}
+
+.publish-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.publish-btn svg {
+  flex-shrink: 0;
+}
+
+.publish-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ========================================
+   11. RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 600px) {
+  .sidebar { 
+    width: 56px; 
+    padding-top: 16px; 
+  }
+  
+  .sidebar-btn { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 10px; 
+  }
+  
+  .sidebar-btn svg { 
+    width: 20px; 
+    height: 20px; 
+  }
+}
