@@ -15,6 +15,7 @@ class UIController {
     this.setupShapeButtons();
     this.setupThemesButtons();
     this.setupPaymentServiceButtons();
+    this.setupHeaderFooterToggleButtons();
     this.setupGlobalClickHandler();
   }
 
@@ -272,6 +273,37 @@ class UIController {
     });
   }
 
+  // Setup header/footer toggle buttons
+  setupHeaderFooterToggleButtons() {
+    const headerBtn = document.getElementById('toggle-header-btn');
+    const footerBtn = document.getElementById('toggle-footer-btn');
+    const header = document.getElementById('header');
+    const footer = document.querySelector('.footer');
+
+    if (headerBtn && header) {
+      headerBtn.onclick = (e) => {
+        e.stopPropagation();
+        headerBtn.classList.toggle('header-hidden');
+        if (header.style.display === 'none') {
+          header.style.display = '';
+        } else {
+          header.style.display = 'none';
+        }
+      };
+    }
+    if (footerBtn && footer) {
+      footerBtn.onclick = (e) => {
+        e.stopPropagation();
+        footerBtn.classList.toggle('footer-hidden');
+        if (footer.style.display === 'none') {
+          footer.style.display = '';
+        } else {
+          footer.style.display = 'none';
+        }
+      };
+    }
+  }
+
   // Setup global click handler to close menus
   setupGlobalClickHandler() {
     document.body.addEventListener('click', () => {
@@ -292,6 +324,10 @@ class UIController {
     if (paymentServiceBtn) paymentServiceBtn.classList.remove('payment-active');
     const themesBtn = document.getElementById('themes-btn');
     if (themesBtn) themesBtn.classList.remove('themes-active');
+    const headerBtn = document.getElementById('toggle-header-btn');
+    if (headerBtn) headerBtn.classList.remove('header-hidden');
+    const footerBtn = document.getElementById('toggle-footer-btn');
+    if (footerBtn) footerBtn.classList.remove('footer-hidden');
     this.activeMenus.clear();
   }
 

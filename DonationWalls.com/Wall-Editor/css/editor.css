@@ -87,6 +87,17 @@
   pointer-events: auto;
 }
 
+.sidebar-btn.header-hidden {
+  background: #e3e3e3;
+  box-shadow: 0 0 0 2px #4facfe33;
+  opacity: 0.7;
+}
+.sidebar-btn.footer-hidden {
+  background: #e3e3e3;
+  box-shadow: 0 0 0 2px #00b89433;
+  opacity: 0.7;
+}
+
 /* ========================================
    2. SIDEBAR BUTTON LABELS
    ======================================== */
