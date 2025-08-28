@@ -2,60 +2,46 @@
 class WordCloudManager {
   constructor() {
     this.canvas = null;
-    this.currentFont = 'Verdana';
-    this.currentFontWeight = '500';
-    this.currentPalette = 'colorful';
+    this.currentFont = 'Georgia';
+    this.currentFontWeight = '400';
+    this.currentPalette = 'black';
     this.currentShape = 'cloud';
     this.currentEllipticity = 1;
   }
 
   // Function to create and configure the wordcloud canvas
   createWordCloudCanvas() {
-    // Create container wrapper
-    const container = document.createElement('div');
-    container.style.cssText = `
-      position: relative;
-      display: inline-block;
-      width: 1200px;
-      height: 650px;
-    `;
-    
-    const canvas = document.createElement('canvas');
-    canvas.id = 'wordcloud-canvas';
-    canvas.className = 'wall';
-    canvas.width = 1200;
-    canvas.height = 600;
-    canvas.style.display = 'block';
-    
-    // Add canvas to container
-    container.appendChild(canvas);
-    
-    // Insert container after the stats paragraph
-    const statsParagraph = document.querySelector('#header');
-    statsParagraph.parentNode.insertBefore(container, statsParagraph.nextSibling);
-    
-    // Create branding tag
-    this.createBrandingTag(container);
-    
+    // Get the existing canvas from the DOM
+    const canvas = document.getElementById('wordcloud-canvas');
+    if (!canvas) {
+      throw new Error('Canvas element with id "wordcloud-canvas" not found in the DOM.');
+    }
     this.canvas = canvas;
+    // Add branding tag to the parent container if not already present
+    const parent = canvas.parentNode;
+    this.createBrandingTag(parent);
+
     return canvas;
   }
 
   // Function to create branding tag
   createBrandingTag(container) {
+    // Prevent duplicate branding tags
+    if (container.querySelector('.branding-tag')) return;
     const brandingTag = document.createElement('a');
+    brandingTag.className = 'branding-tag';
     brandingTag.href = 'https://donationwalls.com';
     brandingTag.target = '_blank';
     brandingTag.rel = 'noopener noreferrer';
     brandingTag.textContent = 'Powered by DonationWalls.com';
     brandingTag.style.cssText = `
       position: absolute;
-      bottom: 0px;
+      bottom: 10px;
       left: 10px;
-      font-size: 18px;
+      font-size: 10px;
       color: rgba(255, 255, 255, 0.7);
       text-decoration: none;
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.2);
       padding: 4px 8px;
       border-radius: 4px;
       font-family: Arial, sans-serif;
@@ -66,7 +52,8 @@ class WordCloudManager {
     // Add hover effect
     brandingTag.addEventListener('mouseenter', () => {
       brandingTag.style.opacity = '1';
-      brandingTag.style.color = 'rgba(255, 255, 255, 0.9)';
+      brandingTag.style.color = 'rgb(255, 255, 255)';
+      brandingTag.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
       // Hide tooltip when hovering over branding tag
       const tooltip = document.getElementById('tooltip');
       if (tooltip) {
@@ -83,11 +70,33 @@ class WordCloudManager {
     container.appendChild(brandingTag);
   }
 
+  // Utility to resize canvas to match its displayed size (for crisp rendering)
+  resizeCanvasToDisplaySize() {
+    const canvas = this.canvas || document.getElementById('wordcloud-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    // Use the parent element's width for 100% width
+    const parent = canvas.parentElement;
+    if (!parent) return;
+    const displayWidth = parent.clientWidth;
+    // Optionally, set a fixed aspect ratio or use parent height
+    const aspectRatio = 500 / 900; // matches your default CSS (height/width)
+    const displayHeight = Math.round(displayWidth * aspectRatio);
+    // Only resize if necessary
+    if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
+      canvas.width = displayWidth * dpr;
+      canvas.height = displayHeight * dpr;
+      canvas.style.width = displayWidth + 'px';
+      canvas.style.height = displayHeight + 'px';
+    }
+  }
+
   // Function to create wordcloud with current data and settings
   createWordCloud(donors, paletteDefs) {
     if (!this.canvas) {
       this.createWordCloudCanvas();
     }
+    this.resizeCanvasToDisplaySize();
 
     const wordList = donors.map(d => [d.name, d.amount]);
     const avgAmount = donors.reduce((sum, d) => sum + d.amount, 0) / donors.length;
@@ -155,14 +164,15 @@ class WordCloudManager {
 
   // Custom cloud shape function for wordcloud2.js
   cloudShape(theta) {
-    // Cloud-like profile using a combination of lobes
-    // Map theta [0, 2pi) to radius multiplier [0.6, 1]
+    // Enhanced cloud-like profile with more pronounced lobes and irregularity
     const t = theta % (2 * Math.PI);
     const lobe1 = 0.5 + 0.5 * Math.cos(t);
     const lobe2 = 0.5 + 0.5 * Math.cos(2 * t + Math.PI / 4);
     const lobe3 = 0.5 + 0.5 * Math.cos(3 * t + Math.PI / 2);
-    const base = 0.6;
-    return base + 0.18 * lobe1 + 0.14 * lobe2 + 0.08 * lobe3;
+    const lobe4 = 0.5 + 0.5 * Math.cos(5 * t + Math.PI / 3); // extra lobe for more irregularity
+    const lobe5 = 0.5 + 0.5 * Math.cos(7 * t + Math.PI / 5); // extra lobe for more irregularity
+    const base = 0.55; // lower base for less circularity
+    return base + 0.22 * lobe1 + 0.18 * lobe2 + 0.13 * lobe3 + 0.09 * lobe4 + 0.07 * lobe5;
   }
 
   // Update wordcloud with current settings
@@ -195,6 +205,14 @@ class WordCloudManager {
     this.currentEllipticity = value;
   }
 
+  setTheme(themeObj) {
+    if (themeObj.palette) this.setPalette(themeObj.palette);
+    if (themeObj.font) this.setFont(themeObj.font);
+    if (themeObj.fontWeight) this.setFontWeight(themeObj.fontWeight);
+    if (themeObj.shape) this.setShape(themeObj.shape);
+    if (themeObj.ellipticity !== undefined) this.setEllipticity(themeObj.ellipticity);
+  }
+
   getCurrentShape() {
     return this.currentShape;
   }
@@ -202,3 +220,46 @@ class WordCloudManager {
 
 // Export for use in other modules
 window.WordCloudManager = WordCloudManager;
+
+// Example theme definitions for use in main.js
+window.THEMES = {
+  'classic-minimal': {
+    palette: 'black',
+    font: 'Georgia',
+    fontWeight: '400',
+    shape: 'circle',
+    ellipticity: 1
+  },
+  'nature': {
+    palette: 'green',
+    font: 'Verdana',
+    fontWeight: '500',
+    shape: 'cloud',
+    ellipticity: 1
+  },
+  'corporate': {
+    palette: 'blue',
+    font: 'Roboto',
+    fontWeight: '700',
+    shape: 'diamond',
+    ellipticity: 1
+  },
+  'party': {
+    palette: 'colorful',
+    font: 'Rubik Spray Paint',
+    fontWeight: '700',
+    shape: 'star',
+    ellipticity: 1
+  }
+};
+
+// Ensure the canvas resizes on window resize
+window.addEventListener('resize', function() {
+  if (window.donationWallApp && window.donationWallApp.wordCloudManager) {
+    window.donationWallApp.wordCloudManager.resizeCanvasToDisplaySize();
+    // Optionally, re-render the wordcloud for best results
+    if (window.donationWallApp.wordCloudManager.canvas) {
+      window.donationWallApp.updateWordCloud && window.donationWallApp.updateWordCloud();
+    }
+  }
+});

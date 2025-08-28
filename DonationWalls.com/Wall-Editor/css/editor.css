@@ -77,6 +77,16 @@
   transform: scale(1.08);
 }
 
+.sidebar-btn.themes-active {
+  background: #e0ffe7;
+  transform: scale(1.08);
+}
+
+.sidebar-btn.themes-active .menu-popup {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ========================================
    2. SIDEBAR BUTTON LABELS
    ======================================== */
@@ -119,17 +129,17 @@
   white-space: nowrap;
 }
 
-.sidebar-btn:hover .sidebar-btn-label {
-  opacity: 1;
-}
+
 
 /* Hide labels when popup is active */
+.sidebar-btn.themes-active .sidebar-btn-label,
 .sidebar-btn.palette-active .sidebar-btn-label,
 .sidebar-btn.add-menu-active .sidebar-btn-label,
 .sidebar-btn.remove-menu-active .sidebar-btn-label,
 .sidebar-btn.font-active .sidebar-btn-label,
 .sidebar-btn.font-weight-active .sidebar-btn-label,
 .sidebar-btn.shape-active .sidebar-btn-label,
+.sidebar-btn.themes-active:hover .sidebar-btn-label,
 .sidebar-btn.palette-active:hover .sidebar-btn-label,
 .sidebar-btn.add-menu-active:hover .sidebar-btn-label,
 .sidebar-btn.remove-menu-active:hover .sidebar-btn-label,
@@ -328,6 +338,18 @@
 }
 
 .font-weight-option {
+  color: #333;
+  border-radius: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  width: 80px;
+}
+.theme-option {
   color: #333;
   border-radius: 0;
   border: none;

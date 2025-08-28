@@ -13,7 +13,6 @@ body {
   background: #f9f9f9;
   margin: 0;
   padding: 20px;
-  margin-left: 80px; /* Adjust main content to not be hidden by sidebar */
 }
 
 /* Typography styles */
@@ -36,8 +35,9 @@ p {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 950px;
 }
+
 
 /* ========================================
    3. HEADER STYLES
@@ -55,11 +55,11 @@ p {
   box-shadow: 
     0 8px 32px rgba(79, 172, 254, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.04);
-  margin: 20px auto 0px;
   width: 100%;
   min-height: 80px;
   position: relative;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 /* Header background accent */
@@ -85,22 +85,23 @@ p {
 
 .header-left h2 {
   margin: 0 0 4px 0;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: #2c3e50;
   display: flex;
   align-items: center;
   gap: 8px;
+
 }
 
 .header-left h2::before {
   content: '💰';
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .header-left p {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   color: #7f8c8d;
   font-weight: 500;
 }
@@ -143,7 +144,7 @@ p {
 
 .header-right h2 {
   margin: 0 0 4px 0;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: #2c3e50;
   display: flex;
@@ -154,12 +155,12 @@ p {
 
 .header-right h2::before {
   content: '⏰';
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .header-right p {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   color: #e74c3c;
   font-weight: 600;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
@@ -198,7 +199,6 @@ p {
 
 /* Main wall container */
 .wall {
-  margin: 20px auto;
   border: 2px solid #ddd;
   border-radius: 12px;
   background: white;
@@ -211,6 +211,17 @@ p {
   padding: 20px;
 }
 
+#wordcloud-canvas{
+  width: 100%;
+  height: auto;
+ }
+
+.canvas-container{
+  position: relative;
+  width: 100%;
+  height: auto;
+  margin:0px auto;
+}
 /* Individual donor elements */
 .donor {
   margin: 100px;
@@ -277,9 +288,9 @@ p {
   box-shadow: 
     0 8px 32px rgba(79, 172, 254, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.04);
-  margin: 30px auto 20px;
+  margin: 20px 0px 0px 0px;
   width: 100%;
-  min-height: 80px;
+  min-height: 20px;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;

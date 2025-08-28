@@ -13,6 +13,7 @@ class UIController {
     this.setupFontWeightButtons();
     this.setupPaletteButtons();
     this.setupShapeButtons();
+    this.setupThemesButtons();
     this.setupPaymentServiceButtons();
     this.setupGlobalClickHandler();
   }
@@ -241,6 +242,36 @@ class UIController {
     });
   }
 
+  // Setup themes selection buttons
+  setupThemesButtons() {
+    const themesBtn = document.getElementById('themes-btn');
+    const themeOptions = document.querySelectorAll('.theme-option');
+
+    if (!themesBtn) return;
+
+    themesBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.closeAllMenus();
+      themesBtn.classList.toggle('themes-active');
+      if (themesBtn.classList.contains('themes-active')) {
+        this.activeMenus.add('themes');
+      } else {
+        this.activeMenus.delete('themes');
+      }
+    };
+
+    themeOptions.forEach(opt => {
+      opt.onclick = (e) => {
+        e.stopPropagation();
+        themeOptions.forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        const themeKey = opt.getAttribute('data-theme');
+        this.triggerEvent('themeChanged', themeKey);
+        // Keep popup open for now
+      };
+    });
+  }
+
   // Setup global click handler to close menus
   setupGlobalClickHandler() {
     document.body.addEventListener('click', () => {
@@ -259,6 +290,8 @@ class UIController {
     if (shapeBtn) shapeBtn.classList.remove('shape-active');
     const paymentServiceBtn = document.getElementById('payment-service-btn');
     if (paymentServiceBtn) paymentServiceBtn.classList.remove('payment-active');
+    const themesBtn = document.getElementById('themes-btn');
+    if (themesBtn) themesBtn.classList.remove('themes-active');
     this.activeMenus.clear();
   }
 

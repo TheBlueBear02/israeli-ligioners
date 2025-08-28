@@ -1,9 +1,9 @@
 // Styling Manager - Handles color palettes and font management
 class StylingManager {
   constructor() {
-    this.currentPalette = 'colorful';
-    this.currentFont = 'Arial';
-    this.currentFontWeight = '400';
+    this.currentPalette = 'black';
+    this.currentFont = 'Georgia';
+    this.currentFontWeight = '300';
     this.initializePalettes();
   }
 

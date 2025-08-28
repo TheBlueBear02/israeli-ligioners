@@ -124,6 +124,16 @@ class DonationWallApp {
       this.wordCloudManager.setEllipticity(1);
       this.updateWordCloud();
     });
+
+    // Theme changed event
+    document.addEventListener('themeChanged', (event) => {
+      const themeKey = event.detail;
+      const themeObj = window.THEMES[themeKey];
+      if (themeObj) {
+        this.wordCloudManager.setTheme(themeObj);
+        this.updateWordCloud();
+      }
+    });
   }
 
   // Update the display (wordcloud and stats)
